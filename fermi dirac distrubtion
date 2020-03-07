@@ -1,0 +1,41 @@
+import numpy as np
+import matplotlib.pyplot as plt
+from matplotlib.widgets import Slider
+
+k = 8.6e-5 #Valeur en eV/K
+
+#variation de T k
+T_min = 0  # the minimial value of the paramater a
+T_max =3000   # the maximal value of the paramater a
+Ti = 300  # the value of the parameter a to be used initially, when the graph is created
+###
+mu_min = 0  # the minimial value of the paramater a
+mu_max =10   # the maximal value of the paramater a
+mui = 2 #ev
+fig=plt.figure(figsize=(8,5))
+
+mu_slider=Slider(plt.axes([0.2, 0.009, 0.65, 0.05]), 'Varie mu(K):',mu_min, mu_max,mui)
+sin_ax = plt.axes([0.08, 0.2, 0.75, 0.65])
+#[g.d,up.down,paramter de reper,.]
+plt.axes(sin_ax)
+plt.suptitle('Fermi-Dirac distribution function')
+plt.title('f(E)= E')
+plt.xlabel('E')
+plt.ylabel('f(E)',rotation=0)
+e = np.linspace(-0.5, 10, 200)
+plt.grid(True, linestyle='-.')
+
+for i in range (T_min,T_max,1000):
+    f=1.0 / (np.exp((e - mui)/(k*i)) + 1)
+    fd,=plt.plot(e, f,label='T='+str(i)+' K')
+    def update(mu):
+        fd.set_ydata(1.0 / (np.exp((e - mu_slider.val)/(k*i)) + 1))
+        fig.canvas.draw_idle()
+
+    mu_slider.on_changed(update)
+
+    
+plt.xlim(-0.5, 6.5)
+
+plt.ylim(0, 1.1)
+plt.legend()
