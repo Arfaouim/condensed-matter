@@ -1,0 +1,922 @@
+import Tkinter as tk
+import webbrowser
+from tkFileDialog import askopenfilename
+from ttk import*
+from sympy import*
+from sympy.physics.quantum import Commutator, Dagger, Operator
+from sympy.abc import x, y
+from sympy.integrals import laplace_transform
+from sympy.abc import t, s, a
+import numpy as np
+import matplotlib.pyplot as plt
+from matplotlib.widgets import Slider
+import calendar
+def hi():
+    print('hi')
+init_printing()
+
+LARGE_FONT= ("Verdana", 20)
+
+
+class myapp(tk.Tk):
+
+    def __init__(self, *args, **kwargs):
+      
+        
+        tk.Tk.__init__(self, *args, **kwargs)
+        container = tk.Frame(self)
+
+        container.pack(side="top", fill="both", expand = True)
+
+        container.grid_rowconfigure(0, weight=1)
+        container.grid_columnconfigure(0, weight=1)
+
+        self.frames = {}
+
+        for F in (StartPage, PageOne, PageTwo,Page3,Page4):
+
+            frame = F(container, self)
+
+            self.frames[F] = frame
+
+            frame.grid(row=0, column=0, sticky="nsew")
+
+        self.show_frame(StartPage)
+
+    def show_frame(self, cont):
+        
+
+        frame = self.frames[cont]
+        frame.tkraise()
+
+        
+class StartPage(tk.Frame):
+
+    def __init__(self, parent, controller):
+        def new_winF(): # new window definition
+            newwin = tk.Toplevel(self)
+            newwin.geometry('700x700')
+            display =tk.Label(newwin, text="Humm, see a new window !")
+            display.pack()
+            display1 =tk.Button(newwin, text="Humm, see a new window !")
+            display1.pack()
+        def new_winF1(): # new window definition
+            newwin = tk.Toplevel(self)
+            mu = 0.55 #ev
+            k = 8.6e-5 #Valeur en eV/K
+
+            #variation de T k
+            T_min = 0   # the minimial value of the paramater a
+            T_max =30000   # the maximal value of the paramater a
+            Ti = 300  # the value of the parameter a to be used initially, when the graph is created
+
+
+            def f(e):
+                 return 1.0 / (np.exp((e - mu)/(k*Ti)) + 1)
+            fig = plt.figure()
+            espan = np.linspace(-0.5, 3, 200)
+
+            # plt.axes((left, bottom, width, height), facecolor='w')
+            sin_ax = plt.axes([0.15, 0.2, 1, 0.65])
+            plt.axes(sin_ax)
+            plt.suptitle('Fermi-Dirac distribution function')
+            plt.title('f(E)= E')
+            plt.xlabel('E')
+            plt.ylabel('f(E)',rotation=0)
+            fd,=plt.plot(espan, f(espan),'r')
+            plt.xlim(-0.5, 1.5)
+
+            plt.ylim(0, 1.1)
+
+
+            plt.text(0.75,0.8, 'Destrubition\nFermi_Dirac', style='italic',
+                 bbox={'facecolor':'red', 'alpha':0.5, 'pad':10})
+
+
+           # here we create the slider
+            t_slider = Slider(plt.axes([0.2, 0.05, 0.65, 0.05])
+                      ,      # the axes object containing the slider
+                  'Varie T(K)',            # the name of the slider parameter
+                  T_min,          # minimal value of the parameter
+                  T_max,          # maximal value of the parameter
+                  valinit=Ti  # initial value of the parameter
+                 )
+            def update(T):
+                fd.set_ydata( 1.0 / (np.exp((espan - mu)/(k*t_slider.val)) + 1)) 
+                fig.canvas.draw_idle()
+
+
+            t_slider.on_changed(update)
+
+            plt.show()
+
+        def pd(): # new window definition
+            newwin = tk.Toplevel(self)
+            newwin.geometry('700x700')
+            
+            def table():
+                newwi = tk.Toplevel(newwin)
+
+                
+                for i in range(int(tk.Entry.get(h))): #Rows
+                    for j in range(int(tk.Entry.get(w))): #Columns
+                        b = tk.Entry(newwi, text="")
+                        b.grid(row=i, column=j)
+            hh=tk.Label(newwin,text="height",fg='red')
+            hh.grid(row=0,column=0)
+            h=tk.Entry(newwin)
+            h.grid(row=0,column=1)
+            ww=tk.Label(newwin,text="width",fg='red')
+            ww.grid(row=1,column=0)
+            w=tk.Entry(newwin)
+            w.grid(row=1,column=1)
+            b=tk.Button(newwin,text='click',command=table)
+            b.grid(row=2,column=0)
+            def cal():
+                year=y.get()
+                calendar.calendar(year,2,1,10)
+                sow.config(text= calendar.calendar(year,2,1,10))
+                
+            n=tk.Label(newwin,text="calendar")
+            n.grid(row=4,column=0)
+            y =tk.Entry(newwin)
+            y .grid(row=4,column=1)
+            but=tk.Button(newwin,text='click',command=cal  )
+            but.grid(row=5,column=0)
+            sow=tk.Label(newwin,text="")
+            sow.grid(row=6,column=0)
+
+            
+
+     
+
+            
+        tk.Frame.__init__(self,parent)
+
+
+
+        frame11=tk.Frame(self, background="purple",width=1300)
+
+        buttons= tk.Label(frame11, bd=8,height=3,text="______Support comporte \ndes outiles mathematique \net des Simulations physique______",font=13,fg="white",bg="black",
+                            )
+        buttons.grid(row=0,column=0)
+        
+        label = tk.Button(frame11,bd=8, text="d",
+                          font=LARGE_FONT,relief=tk.RAISED)
+        self.photo7=tk.PhotoImage(file="gh.gif")
+        label.config(image=self.photo7,height="150",width="160")
+        label.grid(row=0,column=1)       
+
+        button = tk.Button(frame11, bd=8,height=3,text="Visit $ubject memo",fg="green",
+                            command=lambda: controller.show_frame(PageOne))
+        self.photo11=tk.PhotoImage(file="gif.gif")
+        button.config(image=self.photo11,height="150",width="160")
+        button.grid(row=0,column=2)
+
+        button2 = tk.Button(frame11,height=3,bd=8, text="Visit $earch $upport",
+                            command=lambda: controller.show_frame(PageTwo))
+        self.photo12=tk.PhotoImage(file="ad.gif")
+        button2.config(image=self.photo12,height="150",width="160")
+        button2.grid(row=0,column=3)
+        button3= tk.Button(frame11,height=3,bd=8, text="Mathematique ",
+                            command=lambda: controller.show_frame(Page3))
+        self.photo9=tk.PhotoImage(file="logo.gif")
+        button3.config(image=self.photo9,height="150",width="160")
+        button3.grid(row=0,column=4)
+
+        button4= tk.Button(frame11,height=3,bd=8, text="Mecanique Quantique  ",
+                            command=lambda: controller.show_frame(Page4))
+        self.photo10=tk.PhotoImage(file="psi.gif")
+        button4.config(image=self.photo10,height="150",width="160")
+        button4.grid(row=0,column=5)
+
+        label2 = tk.Button(frame11, text="",bd=8,command=pd
+                         ,relief=tk.RAISED)
+        self.photo8=tk.PhotoImage(file="calendrier.gif")
+        label2.config(image=self.photo8,height="150",width="160")
+
+        label2.grid(row=0,column=6)
+
+        frame11.grid(row=0,column=0)
+
+        frame22=tk.Frame(self)
+        button = tk.Button(frame22,bd=5, text="Acceuil",bg='pink',fg="blue", width =20,relief=tk.RAISED)
+        button.grid(row=1,column=2)
+        button = tk.Button(frame22,bd=5, text="About us",bg='pink',fg="blue", width =20,relief=tk.RAISED)
+        button.grid(row=1,column=3)
+        button = tk.Button(frame22,bd=5, text="Help",bg='pink',fg="blue", width =20,relief=tk.RAISED)
+        button.grid(row=1,column=4)
+        button = tk.Button(frame22,bd=5, text="Contact us",bg='pink',fg="blue", width =20,relief=tk.RAISED)
+        button.grid(row=1,column=5)
+
+        frame22.grid(row=1,column=0)
+
+        frame55=tk.Frame(self)
+        
+        self.label5=tk.Label(frame55,text="Ma$tere Phy$ique Condon$ee $upport", width = 100,relief=tk.RAISED,font=("Helvetica", 18),fg="white",bg='purple')
+        self.label5.grid(row=2,column=0)
+        frame55.grid(row=2,column=0)
+
+
+
+        frame33=Labelframe(self,text="Exemple des distubition statistique \n_Figure1:Fermi Dirac \n_Figure2:Bose Enstein"
+                          )
+        
+        self.b=tk.Button(frame33,justify = tk.RIGHT,command=new_winF1)
+        self.photo=tk.PhotoImage(file="gap1.gif")
+        self.b.config(image=self.photo,height="321",width="386")
+        self.b.grid(row=3,column=0)
+
+        self.bb=tk.Button(frame33,justify = tk.LEFT,command=new_winF)
+        self.photo1=tk.PhotoImage(file="gap.gif")
+        self.bb.config(image=self.photo1,height="321",width="400")
+        self.bb.grid(row=3,column=1)
+
+        #self.bbb=tk.Button(self,justify = tk.RIGHT,command=new_winF)
+        #self.photo2=tk.PhotoImage(file="12.gif")
+        #self.bbb.config(image=self.photo2,height="350",width="297")
+        #self.bbb.place(x=690,y=190)
+
+        self.bbbb=tk.Button(frame33,justify = tk.RIGHT,command=new_winF)
+        self.photo3=tk.PhotoImage(file="a.gif")
+        self.bbbb.config(image=self.photo3,height="321",width="297")
+        self.bbbb.grid(row=3,column=2)  
+        frame33.grid(row=3,column=0)
+
+        
+        frame44=tk.Frame(self)
+        self.label=tk.Label(frame44,text="Ma$tere Phy$ique Condon$ee $upport", width = 100,relief=tk.RAISED,font=("Helvetica", 18),fg="white",bg='purple')
+        self.label.grid(row=4,column=0)
+        
+        self.f=tk.Label(frame44,text="Contact us$<\nEmail : arfaouimehdi20@yahhoo.fr\nTel:(+216)......",
+                        height=3 ,font=("Helvetica", 10, "bold italic"),width=100,bg="yellow")
+        self.f.grid(row=5,column=0)
+        frame44.grid(row=4,column=0)
+       
+class PageOne(tk.Frame):
+    
+    def __init__(self, parent, controller):
+        def new_winF(): # new window definition
+            def save():
+                 text1 =text.get() + "\n"
+                 
+                 with open("text1.txt", "a") as f:
+                     f.write(text1)
+            newwin = tk.Toplevel(self)
+            b =tk.Button(newwin, text="save", width=9, command=save)
+            b.pack(side=tk.LEFT, padx=2, pady=2)
+            newwin.geometry('700x700')
+            display =tk.Label(newwin, text="Humm, see a new window !")
+            display.pack()
+            display1 =tk.Button(newwin, text="Humm, see a new window !")
+            display1.pack()
+            text = tk.Text(newwin )
+            sb = tk.Scrollbar(newwin , orient="horizontal", command=text.xview)
+            text.configure(xscrollcommand=sb.set)
+            text.configure(wrap=tk.NONE)
+            text.pack(fill="both", expand=True)
+            sb.pack(side="bottom", fill="x")
+ 
+            text.insert("end","Put your text here !! ") 
+        tk.Frame.__init__(self, parent)
+        label = tk.Label(self, text="Subject memo",fg='white',bg='purple', font=LARGE_FONT)
+        label.pack(fill='x')
+
+        button1 = tk.Button(self, text="Back to Home",
+                            command=lambda: controller.show_frame(StartPage))
+        self.photo71=tk.PhotoImage(file="i.gif")
+        button1.config(image=self.photo71,height="100",width="100")
+        button1.pack(side=tk.TOP)
+        def add():
+            callback = lambda n: lambda: click(n)
+            b1=tk.Button(self, text=tk.Entry.get(myEntry),bd=5,command=new_winF)
+            b1.pack(fill='x')
+        def returnEntry2(arg=None):
+            result =myEntry.get()
+            myEntry.delete(0,END)
+            
+
+
+        var = tk.StringVar()
+        label = tk.Label( self, textvariable=var, relief=tk.RAISED,fg="red" )
+
+        var.set("Put in input the subject that you are study $>?")
+        label.pack()
+
+
+
+   # Create the Entry widget
+        myEntry = tk.Entry(self, width=30)
+        myEntry.focus()
+        myEntry.bind("<Return>",returnEntry2)
+        myEntry.pack()
+   # Create the Enter button
+ 
+        enterEntry = tk.Button(self, text= "add to list", command=add)
+        enterEntry.pack()
+ 
+   # Create and emplty Label to put the result in
+
+        resultLabel =tk.Label(self, text = "$ubject<")
+        resultLabel.pack(fill='x')
+
+   
+
+
+class PageTwo(tk.Frame):
+    def __init__(self, parent, controller):
+        tk.Frame.__init__(self, parent)
+        label = tk.Label(self, text="Search support:(search books,+moteur de recherche google)",bg='pink', font=LARGE_FONT)
+        label.grid(row=0,column=0)
+
+        button1 = tk.Button(self, text="Back to Home",height=3,font=("Helvetica", 20, "bold italic"),
+                            command=lambda: controller.show_frame(StartPage))
+        self.photo700=tk.PhotoImage(file="i.gif")
+        button1.config(image=self.photo700,height="100",width="100")
+        button1.grid(row=1,column=0)
+
+        def returnEntry(arg=None):
+            result=entry.get()
+            resultLabel.config(text=result)
+            webbrowser.open('https://www.google.co.in/#q='+result)
+            entry.delete(0,END)
+        def book(arg=None):
+            result=myEntry.get()
+            webbrowser.open('http://gen.lib.rus.ec/search.php?req='+result+'&lg_topic=libgen&open=0&view=simple&res=25&phrase=0&column=def')
+            myEntry.delete(0,END)
+            
+	     
+        label=tk.Label(self,text='Google $earch',bg="black",fg='green')
+        label.grid(row=2,column=0)
+        entry=tk.Entry(self,width=20)
+        entry.grid(row=3,column=0)
+        button=tk.Button(self,text="Go",command=returnEntry)
+        button.grid(row=4,column=0)
+        resultLabel = tk.Label(self, text = "")
+        resultLabel.grid(row=5,column=0)
+        #book Search
+        var = tk.StringVar()
+        label1 = tk.Label(self, textvariable=var, relief=tk.RAISED,fg="black",bg='green' )
+
+        var.set("Hey!? How are you doing?\nPut the name of the book:!")
+        label1.grid(row=6,column=0)
+   # Create the Entry widget
+        myEntry=tk.Entry(self,width=30)
+        myEntry.focus()
+        myEntry.bind("<Return>",book)
+        myEntry.grid(row=7,column=0)
+   # Create the Enter button
+        enterEntry = tk.Button(self, text= "Search book", command=book)
+        enterEntry.grid(row=8,column=0)
+
+
+        text = tk.Text(self)
+        sb = tk.Scrollbar(self, orient="horizontal", command=text.xview)
+        text.configure(xscrollcommand=sb.set)
+        text.configure(wrap=tk.NONE)
+        #text.pack(fill="both", expand=True)
+        text.grid(row=9,column=0)
+        #sb.pack(side="bottom", fill="x")
+        sb.grid(row=10,column=0)
+ 
+        text.insert("end","Put your text here !! ") 
+   
+ 
+
+       
+class Page3(tk.Frame):
+    def __init__(self, parent, controller):
+        tk.Frame.__init__(self, parent)
+        label = tk.Label(self, text="Mathematique ",fg='white',bg='purple',  font=("Helvetica", 20, "bold italic"))
+        label.pack(fill='x')
+
+        button1 = tk.Button(self, bd=5,text="Back to Home",relief=tk.RAISED,
+                            command=lambda: controller.show_frame(StartPage))
+        self.photo70=tk.PhotoImage(file="i.gif")
+        button1.config(image=self.photo70,height="100",width="100")
+        button1.pack(side=tk.TOP)
+
+       
+       #Note
+        def intt():
+            x,y,z=symbols('x y z') 
+            init_printing(use_unicode=False, wrap_line=False, no_global=True)   
+            integrate(e.get(),(x ,e1.get(),e2.get()))
+            mr.config(text=integrate(e.get(),(x ,e1.get(),e2.get())))
+        def sol():
+            print(roots(ep.get()))
+            mp.config(text=roots(ep.get()))
+        def lim():
+            print(limit(e1.get(),e2.get(),e3.get()))
+            ll.config(text=limit(e1.get(),e2.get(),e3.get()))
+        def shape():
+            x,y,z=symbols('x y z')
+            init_printing()
+            print(Integral(e.get(),x))
+            ms.config(text=Integral(e.get(),x))
+        def df():
+            x,y,z=symbols('x y z')
+            init_printing(use_unicode=False)
+            diff(ee.get(),ee2.get())
+            mm2.config(text=diff(ee.get(),ee2.get()))
+            
+            
+            
+        note = Notebook(self)
+        
+
+        tab1 = tk.Frame(note)
+        tab2 = tk.Frame(note)
+        tab3 = tk.Frame(note)
+        tab4 = tk.Frame(note)
+        tab5 = tk.Frame(note)
+#tab11  
+        
+
+        ff=Labelframe(tab1, text='Chercher Limite d\'une fonction> ')
+
+        l=tk.Label(ff,text="Entrer la fonction",bg='gray')
+        l.grid(row=0,column=0)
+        e1=tk.Entry(ff)
+        e1.grid(row=1,column=0)
+
+        l2=tk.Label(ff,text="variable")
+        l2.grid(row=2,column=0)
+        e2=tk.Entry(ff)
+        e2.grid(row=3,column=0)
+
+        l3=tk.Label(ff,text="tend vers")
+        l3.grid(row=2,column=1)
+        e3=tk.Entry(ff)
+        e3.grid(row=3,column=1)
+
+        b=tk.Button(ff,text="Limit",command=lim,bd=3)
+        b.grid(row=4,column=0)
+        ll = tk.Label(ff, text = "Limite est ")
+        ll.grid(row=5,column=0)
+        
+        
+        ff.grid(row=0,column=0)
+
+
+
+        f2=Labelframe(tab1,text="Chercher les racines d\'une fonction")
+        ep=tk.Entry(f2)
+        ep.grid(row=0,column=2)
+        b=tk.Button(f2,text="racine d\'une fonction",command=sol)
+        b.grid(row=1,column=2)
+        mp=tk.Label(f2,text="les racine est:")
+        mp.grid(row=2,column=2) 
+        f2.grid(row=0,column=2)
+
+        inte=Labelframe(tab1,text="INTETGRALE ")
+        m1=tk.Label(inte,text="Entrer la fonction qui vous voulez Integrer: ")
+        m1.grid(row=6,column=0)
+        e=tk.Entry(inte)
+        e.grid(row=7,column=0)
+        m2=tk.Label(inte,text="On Integre sur :")
+        m2.grid(row=8,column=0)
+        m3=tk.Label(inte,text="Valeur MIN")
+        m3.grid(row=9,column=0)
+        e1=tk.Entry(inte)
+        e1.grid(row=10,column=0)
+        m4=tk.Label(inte,text="Valeur MAX")
+        m4.grid(row=9,column=1)
+        e2=tk.Entry(inte)
+        e2.grid(row=10,column=1)
+        b=tk.Button(inte,text="            Integrer                ",command=intt)
+        b.grid(row=11,column=0)
+        mr=tk.Label(inte,text="l\'Integrale sur L'Intervalle donn�e est:")
+        mr.grid(row=12,column=0)
+        inte.grid(row=6,column=0)
+
+        dif=Labelframe(tab1,text="DERIVATION ")
+        mm1=tk.Label(dif,text="Entrer la fonction qui vous voulez D�river: ")
+        mm1.grid(row=6,column=2)
+        ee=tk.Entry(dif)
+        ee.grid(row=7,column=2)
+        mm3=tk.Label(dif,text="Variable ")
+        mm3.grid(row=8,column=2)
+        ee2=tk.Entry(dif)
+        ee2.grid(row=9,column=2)
+        b=tk.Button(dif,text="            Deriver               ",command=df)
+        b.grid(row=10,column=2)
+        mm2=tk.Label(dif,text="RESULTAT ", fg= "green")
+        mm2.grid(row=11,column=2)
+        
+        
+
+        dif.grid(row=6,column=2)
+ 
+        
+        
+        
+        
+#tab2
+        def create():
+             m1 = Matrix([[a1.get(),a2.get(),a3.get()],[a4.get(),a5.get(),a6.get()],[a7.get(),a8.get(),a9.get()]])
+             print(m1)
+             cr1.config(text=m1)
+        def create1():
+             m2 = Matrix([[b1.get(),b2.get(),b3.get()],[b4.get(),b5.get(),b6.get()],[b7.get(),b8.get(),b9.get()]])
+             print(m2)
+             crr1.config(text=m2)     
+        def som():
+            m1 = Matrix([[a1.get(),a2.get(),a3.get()],[a4.get(),a5.get(),a6.get()],[a7.get(),a8.get(),a9.get()]])
+            m2 = Matrix([[b1.get(),b2.get(),b3.get()],[b4.get(),b5.get(),b6.get()],[b7.get(),b8.get(),b9.get()]])
+            ss.config(text=m1+m2)
+            return m1+m2
+        def tran():
+            m1 = Matrix([[a1.get(),a2.get(),a3.get()],[a4.get(),a5.get(),a6.get()],[a7.get(),a8.get(),a9.get()]])
+            sss.config(text= m1.transpose())
+            return m1.transpose() 
+        def inverse():
+            m1 = Matrix([[a1.get(),a2.get(),a3.get()],[a4.get(),a5.get(),a6.get()],[a7.get(),a8.get(),a9.get()]])
+            s1.config(text= m1.inv())
+            return m1.inv() 
+        def determinant():
+            m1 = Matrix([[a1.get(),a2.get(),a3.get()],[a4.get(),a5.get(),a6.get()],[a7.get(),a8.get(),a9.get()]])
+            s2.config(text= m1.det())
+            return m1.inv()
+        def pc():
+            m1 = Matrix([[a1.get(),a2.get(),a3.get()],[a4.get(),a5.get(),a6.get()],[a7.get(),a8.get(),a9.get()]])
+            s.config(text=  m1.charpoly(x).as_expr())
+            return  m1.charpoly(x).as_expr()
+           
+        def valp():
+            m1 = Matrix([[a1.get(),a2.get(),a3.get()],[a4.get(),a5.get(),a6.get()],[a7.get(),a8.get(),a9.get()]])
+            sm.config(text=  m1.eigenvals())
+            return m1.eigenvals()
+        def vectp():
+            m1 = Matrix([[a1.get(),a2.get(),a3.get()],[a4.get(),a5.get(),a6.get()],[a7.get(),a8.get(),a9.get()]])
+            sm1.config(text=  m1.eigenvects())
+            return m1.eigenvects()
+        def diag():
+            m1 = Matrix([[a1.get(),a2.get(),a3.get()],[a4.get(),a5.get(),a6.get()],[a7.get(),a8.get(),a9.get()]])
+            p,d=m1.diagonalize()
+            d1.config(text= p)
+            d2.config(text= d)
+            return p,d 
+        def produit_scalaire():
+            v_1= [float(v1.get()),float(v2.get()),float(v3.get())]
+            v_2= [float(u1.get()),float(u2.get()),float(u3.get())] 
+            af1.config(text=np.dot( v_1,v_2))
+            np.dot(v_1,v_2)
+        def produit_vectoriel():
+            v_1= Matrix([[v1.get(),v2.get(),v3.get()]])
+            v_2= Matrix([[u1.get(),u2.get(),u3.get()]])            
+            af2.config(text= np.cross(v_1,v_2))
+            return np.cross(v_1,v_2)
+        def createv_1():
+            v_1= Matrix([[v1.get(),v2.get(),v3.get()]])
+            af3.config(text= v_1)
+        def createv_2():
+            v_2= Matrix([[u1.get(),u2.get(),u3.get()]])
+            af4.config(text=v_2)
+            
+        
+            
+        #m1
+        lm1=Labelframe(tab2, text='Create M1 ')     
+        a1=tk.Entry(lm1)
+        a1.grid(row=0,column=0)
+        a2=tk.Entry(lm1)
+        a2.grid(row=0,column=1)
+        a3=tk.Entry(lm1)
+        a3.grid(row=0,column=2)
+        a4=tk.Entry(lm1)
+        a4.grid(row=1,column=0)
+        a5=tk.Entry(lm1)
+        a5.grid(row=1,column=1)
+        a6=tk.Entry(lm1)
+        a6.grid(row=1,column=2)
+        a7=tk.Entry(lm1)
+        a7.grid(row=2,column=0)
+        a8=tk.Entry(lm1)
+        a8.grid(row=2,column=1)
+        a9=tk.Entry(lm1)
+        a9.grid(row=2,column=2)
+
+        cr=tk.Button(lm1,text="create",command=create)
+        cr.grid(row=3,column=1)
+        cr1=tk.Label(lm1,text="...")
+        cr1.grid(row=4,column=1)
+        
+
+        lm1.grid(row=0,column=0)
+        #m2
+        lm2=Labelframe(tab2, text='Create M2 ')
+        
+        b1=tk.Entry(lm2)
+        b1.grid(row=0,column=6)
+        b2=tk.Entry(lm2)
+        b2.grid(row=0,column=7)
+        b3=tk.Entry(lm2)
+        b3.grid(row=0,column=8)
+        b4=tk.Entry(lm2)
+        b4.grid(row=1,column=6)
+        b5=tk.Entry(lm2)
+        b5.grid(row=1,column=7)
+        b6=tk.Entry(lm2)
+        b6.grid(row=1,column=8)
+        b7=tk.Entry(lm2)
+        b7.grid(row=2,column=6)
+        b8=tk.Entry(lm2)
+        b8.grid(row=2,column=7)
+        b9=tk.Entry(lm2)
+        b9.grid(row=2,column=8)
+        
+
+        crr=tk.Button(lm2,text="create",command=create1)
+        crr.grid(row=3,column=7)
+        crr1=tk.Label(lm2,text="...")
+        crr1.grid(row=4,column=7)
+
+        
+        lm2.grid(row=0,column=6)
+
+        s=Labelframe(tab2,text="operateur")
+
+        c1=tk.Button(s,text='somme',command=som)
+        c1.grid(row=6,column=0)
+        ss=tk.Label(s,text="...")
+        ss.grid(row=7,column=0)
+
+
+        q=tk.Label(s,text="Transpose M1")
+        q.grid(row=8,column=0)
+        c1=tk.Button(s,text='Transpose',command=tran)
+        c1.grid(row=9,column=0)
+        sss=tk.Label(s,text="...")
+        sss.grid(row=10,column=0)
+
+        q1=tk.Label(s,text="Ps : $i det(m1)=0 alors cette \n derniere n\'est pas inversible\nInverse M1")
+        q1.grid(row=8,column=2)
+        c2=tk.Button(s,text='Inverse',command=inverse)
+        c2.grid(row=9,column=2)
+        s1=tk.Label(s,text="...")
+        s1.grid(row=10,column=2)
+
+        q2=tk.Label(s,text="Det( M1)")
+        q2.grid(row=8,column=3)
+        c3=tk.Button(s,text='determinant',command=determinant)
+        c3.grid(row=9,column=3)
+        s2=tk.Label(s,text="...")
+        s2.grid(row=10,column=3)
+
+        
+        
+        s.grid(row=6,column=0)
+        #Valeurs propre et Vecteur *propre
+
+
+        vp=Labelframe(tab2,text="Valeurs propre et Vecteur *propre")
+
+        q22=tk.Label(vp,text="1ere Etape>")
+        q22.grid(row=6,column=7)
+        q2=tk.Label(vp,text="Polynome caracterstique( M1)")
+        q2.grid(row=7,column=7)
+        c3=tk.Button(vp,text='Polynome caracterstique( M1)',command=pc)
+        c3.grid(row=9,column=7)
+        s=tk.Label(vp,text="...")
+        s.grid(row=10,column=7)
+        
+        q3=tk.Label(vp,text="2eme Etape>")
+        q3.grid(row=11,column=7)
+        ql=tk.Label(vp,text="Valeur Propre( M1)")
+        ql.grid(row=12,column=7)
+        c4=tk.Button(vp,text='Valeur Propre( M1)',command=valp)
+        c4.grid(row=13,column=7)
+        sm=tk.Label(vp,text="...")
+        sm.grid(row=14,column=7)
+        
+        q4=tk.Label(vp,text="3eme Etape>")
+        q4.grid(row=11,column=9)
+        q5=tk.Label(vp,text="Vecteurs Propre( M1)")
+        q5.grid(row=12,column=9)
+        c5=tk.Button(vp,text='Vecteurs Propre( M1)',command=vectp)
+        c5.grid(row=13,column=9)
+        sm1=tk.Label(vp,text="...")
+        sm1.grid(row=14,column=9)
+
+        vp.grid(row=6,column=6)
+        
+        dia=Labelframe(tab2,text="Diagonalization")
+        
+        
+        q5=tk.Label(dia,text="diagonlization(M1)")
+        q5.grid(row=16,column=0)
+        c5=tk.Button(dia,text='diagonlization(M1)',command=diag)
+        c5.grid(row=17,column=0)
+        q6=tk.Label(dia,text="Matrice de passage(M1)")
+        q6.grid(row=18,column=0)
+        d1=tk.Label(dia,text="...")
+        d1.grid(row=19,column=0)
+        q7=tk.Label(dia,text="Matrice diagonale (M1)")
+        q7.grid(row=20,column=0)
+        d2=tk.Label(dia,text="...")
+        d2.grid(row=21,column=0)
+
+
+        dia.grid(row=15,column=0)
+#tab3
+        #create vectors
+        part=Labelframe(tab3,text="Create")
+        vv=tk.Label(part,text="V_1:")
+        vv.grid(row=0,column=0)                
+        v1=tk.Entry(part)
+        v1.grid(row=1,column=0)
+        v2=tk.Entry(part)
+        v2.grid(row=2,column=0)
+        v3=tk.Entry(part)
+        v3.grid(row=3,column=0)
+        bv1=tk.Button(part,text="create v_1",command=createv_1)
+        bv1.grid(row=4,column=0)
+        af3=tk.Label(part,text="(v1)")
+        af3.grid(row=5,column=0)
+        uu=tk.Label(part,text="V_12:")
+        uu.grid(row=0,column=2)                
+        u1=tk.Entry(part)
+        u1.grid(row=1,column=2)
+        u2=tk.Entry(part)
+        u2.grid(row=2,column=2)
+        u3=tk.Entry(part)
+        u3.grid(row=3,column=2)
+        bv2=tk.Button(part,text="create v_2",command=createv_2)
+        bv2.grid(row=4,column=2)
+        af4=tk.Label(part,text="(V2)")
+        af4.grid(row=5,column=2)                
+        part.grid(row=0,column=0)
+                        
+        part2=Labelframe(tab3,text="Produit_Scalaire")
+        c6=tk.Button(part2,text='Produit_Scalaire',command=produit_scalaire)
+        c6.grid(row=6,column=0)
+        af1=tk.Label(part2,text="Produit_Scalaire(v1)")
+        af1.grid(row=7,column=0)                
+        part2.grid(row=6,column=0)
+                        
+        part3=Labelframe(tab3,text="Produit_Vectoriel")
+        c6=tk.Button(part3,text='"Produit_Vectoriel',command=produit_vectoriel)
+        c6.grid(row=6,column=5)
+        af2=tk.Label(part3,text="Produit_Vectoriel(v1)")
+        af2.grid(row=7,column=5)                
+                       
+        part3.grid(row=6,column=5)                  
+ #tab4
+        def tl ():
+            laplace_transform(f.get(),vr.get(),vc.get())
+            tranl.config(text=laplace_transform(f.get(),vr.get(),vc.get()))
+        def tf():
+            fourier_transform(fn.get(),v_r.get(),v_c.get())
+            tranf.config(text=fourier_transform(fn.get(),v_r.get(),v_c.get()))
+            
+        tl1=Labelframe(tab4,text="_TRANSFORMATION DE LAPLACE__")
+        m1=tk.Label(tl1,text="Entrer la fonction qui vous voulez TL(f(x)): ")
+        m1.grid(row=0,column=0)
+        f=tk.Entry(tl1)
+        f.grid(row=1,column=0)
+        m2=tk.Label(tl1,text="Variable de TL():")
+        m2.grid(row=2,column=0)
+        m3=tk.Label(tl1,text="Varible de f (PS: On garder <t> comme\n variable reelle de (f))")
+        m3.grid(row=3,column=0)
+        vr=tk.Entry(tl1)
+        vr.grid(row=4,column=0)
+        m4=tk.Label(tl1,text="Varible complexe(PS : On garder <s> comme\n variable complexe )")
+        m4.grid(row=3,column=1)
+        vc=tk.Entry(tl1)
+        vc.grid(row=4,column=1)
+        b=tk.Button(tl1,text="            Transformation de Laplace               ",command=tl)
+        b.grid(row=5,column=0)
+        tranl=tk.Label(tl1,text="___Resultat__")
+        tranl.grid(row=6,column=0) 
+        tl1.grid(row=0,column=0)
+
+
+        tf1=Labelframe(tab4,text="_TRANSFORMATION DE FOURIER__")
+        mn1=tk.Label(tf1,text="Entrer la fonction qui vous voulez TF(f(x)): ")
+        mn1.grid(row=0,column=2)
+        fn=tk.Entry(tf1)
+        fn.grid(row=1,column=2)
+        mn2=tk.Label(tf1,text="Variable de TF():")
+        mn2.grid(row=2,column=2)
+        mn3=tk.Label(tf1,text="Varible de f (PS: On garder <x> comme\n variable reelle de (f))")
+        mn3.grid(row=3,column=2)
+        v_r=tk.Entry(tf1)
+        v_r.grid(row=4,column=2)
+        mn4=tk.Label(tf1,text="Varible complexe(PS : On garder <k> comme\n variable complexe )")
+        mn4.grid(row=3,column=3)
+        v_c=tk.Entry(tf1)
+        v_c.grid(row=4,column=3)
+        b=tk.Button(tf1,text="            Transformation de Fourier               ",command=tf)
+        b.grid(row=5,column=2)
+        tranf=tk.Label(tf1,text="___Resultat__")
+        tranf.grid(row=6,column=2) 
+        tf1.grid(row=0,column=2)
+        def summation_():
+            x,n=symbols('x n')
+            summation(expr.get() ,(n,0,oo))
+            lexpr.config(text=summation(expr.get(),(n,0,oo)))
+        expr=tk.Entry(tab5)
+        expr.pack()
+        bexpr=tk.Button(tab5,text='resultat',command=summation_)
+        bexpr.pack()
+        lexpr=tk.Label(tab5,text="summation_")
+        lexpr.pack()
+        
+        
+        note.add(tab1, text = "Etude des fonctions")
+        note.add(tab2, text = "Matrix")
+        note.add(tab3, text = "Vecteurs")
+        note.add(tab4, text = "Transformation(TF,TL, etc..)")
+        note.add(tab5, text = "summation_ d'une Fonction__")
+        note.pack(fill='x')
+class Page4(tk.Frame):
+    def __init__(self, parent, controller):
+        tk.Frame.__init__(self, parent)
+        label = tk.Label(self, text="Mecanique Quantique ",fg='white',bg='purple', font=LARGE_FONT)
+        label.pack(fill='x')
+
+        button1 = tk.Button(self, text="Back to Home",
+                            command=lambda: controller.show_frame(StartPage))
+        self.photo72=tk.PhotoImage(file="i.gif")
+        button1.config(image=self.photo72,height="100",width="100")
+        button1.pack(side=tk.TOP)
+
+
+       #Note
+        def op():
+            A = Operator(str(e.get()))
+            B = Operator(str(e1.get()))
+            m.config(text=A)
+            l.config(text=B)
+        def expr():
+            A = Operator(str(e.get()))
+            B = Operator(str(e1.get()))
+            print(Commutator(A, B))
+            ll.config(text=Commutator(A, B))
+        def commut():
+            A = Operator(str(e.get()))
+            B = Operator(str(e1.get()))
+            Commutator(A, B).doit()
+            com.config(text=Commutator(A, B).doit())
+        def adjoint():
+            A = Operator(str(e.get()))
+            B = Operator(str(e1.get()))
+            Dagger(Commutator(A, B))
+            adj.config(text=Dagger(Commutator(A, B)))
+        note = Notebook(self)
+        
+
+        tab1 = tk.Frame(note)
+        tab2 = tk.Frame(note)
+        tab3 = tk.Frame(note)
+       
+        ff=Labelframe(tab1, text='Commutateur')
+        
+        e=tk.Entry(ff)
+        e.pack()
+        b=tk.Button(ff,text="Operator_1",command=op)
+        b.pack()
+        m=tk.Label(ff,text="Operateur")
+        m.pack(fill=tk.X)
+
+        
+        e1=tk.Entry(ff)
+        e1.pack()
+        b1=tk.Button(ff,text="Operator_2",command=op)
+        b1.pack()
+        l=tk.Label(ff,text="Operateur")
+        l.pack()
+
+
+        b2=tk.Button(ff,text="expression",command=expr)
+        b2.pack()
+        ll = tk.Label(ff, text = "expression est ")
+        ll.pack(fill=tk.X)
+
+        b2=tk.Button(ff,text="commutateur",command=commut)
+        b2.pack()
+        com = tk.Label(ff, text = "commutateur est ")
+        com.pack(fill=tk.X)
+
+        b3=tk.Button(ff,text="adjoint",command=adjoint)
+        b3.pack()
+        adj = tk.Label(ff, text = "Adjoint de commutateur est ")
+        adj.pack(fill=tk.X)
+        
+        ff.pack(side=tk.LEFT)
+
+        note.add(tab1, text = "Tab One")
+        note.add(tab2, text = "Tab Two")
+        note.add(tab3, text = "Tab Three")
+        note.pack(fill='x')
+
+     
+if __name__ == "__main__":
+    app = myapp()
+    app.title('__Physique Support__')
+    app.configure(background='red')
+    w, h = app.winfo_screenwidth(), app.winfo_screenheight()
+    app.geometry("%dx%d+0+0" % (w, h))
+   #app.attributes('-fullscreen', True)
+    app.mainloop()
